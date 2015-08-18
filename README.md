@@ -1,6 +1,6 @@
 ##Description
 
-MidiKeySwitcher is a VST plugin which defines simple 2-key switches to select a Midi Channel and send Program/Bank/SubBank Changes from a Midi Keyboard set to a fixed channel. Its ultimate purpose is to free the musician from the computer mouse to browse plugin presets (Programs and Banks) and be able to change instruments (Midi Channel) without having to press convoluted combinations of buttons..
+MidiKeySwitcher is a VST plugin which defines simple 2-key switches to select a Midi Channel and send Program/Bank/SubBank Changes from a Midi Keyboard set to a fixed channel. Its ultimate purpose is to free the musician from the computer mouse to browse plugin presets (Programs and Banks) and be able to change instruments (Midi Channel) without having to press convoluted combinations of buttons.
 
 ##License
 
