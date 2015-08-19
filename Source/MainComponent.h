@@ -105,6 +105,8 @@ private:
     ScopedPointer<Label> label11;
     ScopedPointer<Label> label12;
     ScopedPointer<Label> bank;
+    ScopedPointer<Label> label14;
+    ScopedPointer<Label> label15;
     Path internalPath1;
     Path internalPath2;
     Path internalPath3;

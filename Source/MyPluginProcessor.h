@@ -52,8 +52,8 @@ public:
     bool setMidiBankMode;
     bool setMidiProgramMode;
 
-    uint8 banks[16];
-    uint8 programs[16];
+    int8 banks[16];
+    int8 programs[16];
 
     int8 masterChannel;
     int8 firstModKey;
@@ -71,12 +71,12 @@ public:
       
     void initParameters(){        
       //Params
-      addInt8Param(forceMidiChannelIndex,"channel",true,SAVE,&forceMidiChannel,0,16);
+      addInt8Param(forceMidiChannelIndex,"channel",true,SAVE,&forceMidiChannel,1,16);
       addInt8Param(masterChannelIndex,"masterChannelIndex",false,SAVE,&masterChannel,1,16);
       addInt8Param(firstModKeyIndex,"firstModKey",false,SAVE,&firstModKey,0,127);
       //ParamGroups
-      addUint8ParamArray(banksIndex,"banks",false,SAVE,banks,nullptr,16,0,128);
-      addUint8ParamArray(programsIndex,"programs",false,SAVE,programs,nullptr,16,0,128);
+      addInt8ParamArray(banksIndex,"banks",false,SAVE,banks,nullptr,16,0,127);
+      addInt8ParamArray(programsIndex,"programs",false,SAVE,programs,nullptr,16,0,127);
     }     
 
 private:

@@ -97,9 +97,8 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     addAndMakeVisible (firstModKeyComboBox = new ComboBox ("firstModKeyComboBox"));
     firstModKeyComboBox->setEditableText (false);
     firstModKeyComboBox->setJustificationType (Justification::centredLeft);
-    firstModKeyComboBox->setTextWhenNothingSelected (String::empty);
+    firstModKeyComboBox->setTextWhenNothingSelected (TRANS("C#2"));
     firstModKeyComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    firstModKeyComboBox->addItem (TRANS("C#2"), 1);
     firstModKeyComboBox->addListener (this);
 
     addAndMakeVisible (channel7 = new Label (String::empty,
@@ -114,7 +113,7 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     addAndMakeVisible (masterChannelComboBox = new ComboBox ("masterChannelComboBox"));
     masterChannelComboBox->setEditableText (false);
     masterChannelComboBox->setJustificationType (Justification::centredLeft);
-    masterChannelComboBox->setTextWhenNothingSelected (String::empty);
+    masterChannelComboBox->setTextWhenNothingSelected (TRANS("1"));
     masterChannelComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     masterChannelComboBox->addItem (TRANS("1"), 1);
     masterChannelComboBox->addItem (TRANS("2"), 2);
@@ -144,7 +143,7 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (label3 = new Label ("new label",
-                                           TRANS("2nd Mod Key+(1-64)")));
+                                           TRANS("2nd Mod Key+(1-16)")));
     label3->setFont (Font (12.00f, Font::plain));
     label3->setJustificationType (Justification::centredLeft);
     label3->setEditable (false, false, false);
@@ -171,7 +170,7 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     label5->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (channel = new Label (String::empty,
-                                            TRANS("16")));
+                                            TRANS("2")));
     channel->setFont (Font (46.00f, Font::plain));
     channel->setJustificationType (Justification::centredLeft);
     channel->setEditable (false, false, false);
@@ -180,7 +179,7 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     channel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (program = new Label (String::empty,
-                                            TRANS("128")));
+                                            TRANS("1")));
     program->setFont (Font (46.00f, Font::plain));
     program->setJustificationType (Justification::centredLeft);
     program->setEditable (false, false, false);
@@ -264,13 +263,31 @@ MainComponent::MainComponent (MyPluginProcessor* processor)
     label12->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (bank = new Label (String::empty,
-                                         TRANS("16")));
+                                         TRANS("1")));
     bank->setFont (Font (46.00f, Font::plain));
     bank->setJustificationType (Justification::centredLeft);
     bank->setEditable (false, false, false);
     bank->setColour (Label::textColourId, Colours::white);
     bank->setColour (TextEditor::textColourId, Colours::black);
     bank->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (label14 = new Label ("new label",
+                                            TRANS("1st+2nd Mod Key (inc program change)")));
+    label14->setFont (Font (12.00f, Font::plain));
+    label14->setJustificationType (Justification::centredLeft);
+    label14->setEditable (false, false, false);
+    label14->setColour (Label::textColourId, Colours::white);
+    label14->setColour (TextEditor::textColourId, Colours::black);
+    label14->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (label15 = new Label ("new label",
+                                            TRANS("2nd+3rd Mod Key (dec program change)")));
+    label15->setFont (Font (12.00f, Font::plain));
+    label15->setJustificationType (Justification::centredLeft);
+    label15->setEditable (false, false, false);
+    label15->setColour (Label::textColourId, Colours::white);
+    label15->setColour (TextEditor::textColourId, Colours::black);
+    label15->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -338,6 +355,8 @@ MainComponent::~MainComponent()
     label11 = nullptr;
     label12 = nullptr;
     bank = nullptr;
+    label14 = nullptr;
+    label15 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -454,6 +473,15 @@ void MainComponent::paint (Graphics& g)
     g.setColour (Colour (0xff232323));
     g.fillRect (339, 22, 14, 38);
 
+    g.setColour (Colour (0xff3e3e3e));
+    g.fillRect (200, 287, 20, 6);
+
+    g.setColour (Colour (0xff3e3e3e));
+    g.fillRect (200, 259, 20, 6);
+
+    g.setColour (Colour (0xff3e3e3e));
+    g.fillRect (207, 252, 6, 20);
+
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
@@ -484,6 +512,8 @@ void MainComponent::resized()
     label11->setBounds (337, 44, 22, 15);
     label12->setBounds (347, 59, 21, 15);
     bank->setBounds (604, 170, 58, 41);
+    label14->setBounds (12, 248, 184, 24);
+    label15->setBounds (13, 276, 184, 24);
     internalPath1.clear();
     internalPath1.startNewSubPath (494.0f, 541.0f);
     internalPath1.lineTo (544.0f, 530.0f);
@@ -582,13 +612,13 @@ void MainComponent::timerCallback(){
       channel->setText(String(intParam->uiGet()), dontSendNotification);
     }
     if (intParam->uiGet()>0){
-      Uint8Param *bankParam=processor->getUint8ParamArray(MyPluginProcessor::banksIndex)->getUint8Param(intParam->uiGet()-1);
+      Int8Param *bankParam=processor->getInt8ParamArray(MyPluginProcessor::banksIndex)->getInt8Param(intParam->uiGet()-1);
       if (bank && bankParam->updateUiRequested()){
-        bank->setText(String(bankParam->uiGet()), dontSendNotification);
+        bank->setText(String(bankParam->uiGet()+1), dontSendNotification);
       }
-      Uint8Param *programParam=processor->getUint8ParamArray(MyPluginProcessor::programsIndex)->getUint8Param(intParam->uiGet()-1);
+      Int8Param *programParam=processor->getInt8ParamArray(MyPluginProcessor::programsIndex)->getInt8Param(intParam->uiGet()-1);
       if (program && programParam->updateUiRequested()){
-        program->setText(String(programParam->uiGet()), dontSendNotification);
+        program->setText(String(programParam->uiGet()+1), dontSendNotification);
       }
     }
     Int8Param* const firstModKeyParam=processor->getInt8Param(MyPluginProcessor::firstModKeyIndex);
@@ -652,6 +682,9 @@ BEGIN_JUCER_METADATA
     <RECT pos="318 22 14 38" fill="solid: ff232323" hasStroke="0"/>
     <RECT pos="347 22 20 60" fill="solid: ffffffff" hasStroke="0"/>
     <RECT pos="339 22 14 38" fill="solid: ff232323" hasStroke="0"/>
+    <RECT pos="200 287 20 6" fill="solid: ff3e3e3e" hasStroke="0"/>
+    <RECT pos="200 259 20 6" fill="solid: ff3e3e3e" hasStroke="0"/>
+    <RECT pos="207 252 6 20" fill="solid: ff3e3e3e" hasStroke="0"/>
   </BACKGROUND>
   <LABEL name="new label" id="40675a0de0db5712" memberName="label13" virtualName=""
          explicitFocusOrder="0" pos="111 182 510 477" bkgCol="e4e4e4"
@@ -680,7 +713,7 @@ BEGIN_JUCER_METADATA
          fontsize="19" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="firstModKeyComboBox" id="ed187231c2cc1bed" memberName="firstModKeyComboBox"
             virtualName="" explicitFocusOrder="0" pos="194 45 55 26" editable="0"
-            layout="33" items="C#2" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="" textWhenNonSelected="C#2" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="28e1c9bf469abd4c" memberName="channel7" virtualName=""
          explicitFocusOrder="0" pos="65 102 130 41" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Input Channel:"
@@ -689,7 +722,7 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="masterChannelComboBox" id="502bacd1ae3fcb89" memberName="masterChannelComboBox"
             virtualName="" explicitFocusOrder="0" pos="195 110 55 26" editable="0"
             layout="33" items="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;10&#10;11&#10;12&#10;13&#10;14&#10;15&#10;16"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            textWhenNonSelected="1" textWhenNoItems="(no choices)"/>
   <LABEL name="new label" id="59870ea54f2b1065" memberName="label2" virtualName=""
          explicitFocusOrder="0" pos="285 111 114 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="3rd Mod Key+(1-16)"
@@ -697,7 +730,7 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="12" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="b603e3a18bdc4385" memberName="label3" virtualName=""
          explicitFocusOrder="0" pos="277 179 117 24" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="2nd Mod Key+(1-64)"
+         edTextCol="ff000000" edBkgCol="0" labelText="2nd Mod Key+(1-16)"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="12" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="7720dc8d89f42acb" memberName="label4" virtualName=""
@@ -712,12 +745,12 @@ BEGIN_JUCER_METADATA
          fontname="Default font" fontsize="12" bold="0" italic="0" justification="33"/>
   <LABEL name="" id="1d41bfcc397457ab" memberName="channel" virtualName=""
          explicitFocusOrder="0" pos="604 100 58 41" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="16" editableSingleClick="0"
+         edTextCol="ff000000" edBkgCol="0" labelText="2" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="46" bold="0" italic="0" justification="33"/>
   <LABEL name="" id="84db38ee3aa3cc9b" memberName="program" virtualName=""
          explicitFocusOrder="0" pos="604 251 87 41" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="128" editableSingleClick="0"
+         edTextCol="ff000000" edBkgCol="0" labelText="1" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="46" bold="0" italic="0" justification="33"/>
   <HYPERLINKBUTTON name="new hyperlink" id="7a35e24b9e903fd1" memberName="hyperlinkButton"
@@ -765,9 +798,19 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="1" italic="0" justification="33"/>
   <LABEL name="" id="488263b8fa885fdd" memberName="bank" virtualName=""
          explicitFocusOrder="0" pos="604 170 58 41" textCol="ffffffff"
-         edTextCol="ff000000" edBkgCol="0" labelText="16" editableSingleClick="0"
+         edTextCol="ff000000" edBkgCol="0" labelText="1" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="46" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="28bf4c09ea7b8ee8" memberName="label14" virtualName=""
+         explicitFocusOrder="0" pos="12 248 184 24" textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="1st+2nd Mod Key (inc program change)"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="12" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="8c411a3980333fbb" memberName="label15" virtualName=""
+         explicitFocusOrder="0" pos="13 276 184 24" textCol="ffffffff"
+         edTextCol="ff000000" edBkgCol="0" labelText="2nd+3rd Mod Key (dec program change)"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="12" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

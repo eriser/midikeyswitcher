@@ -23,7 +23,7 @@ which have separate licenses.
 MyPluginProcessor::MyPluginProcessor():
   forceMidi10(false),
   noteOffset(0),
-  forceMidiChannel(0),
+  forceMidiChannel(1),
   forceMidiChannelMode(false),
   setMidiBankMode(false),
   setMidiProgramMode(false),
@@ -72,22 +72,72 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
           if (midiMessage.getNoteNumber()==firstModKey+2){
             if (midiMessage.isNoteOn()){
               forceMidiChannelMode=true;
+              if (setMidiBankMode && setMidiProgramMode){
+                for (int c=1;c<=16;c++){
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
+                }
+              } else if (setMidiBankMode && programs[forceMidiChannel-1]<127){
+                getInt8ParamArray(banksIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,banks[forceMidiChannel-1]),0);
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,banks[forceMidiChannel-1]),0);
+
+                programs[forceMidiChannel-1]++;
+                getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+                midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,programs[forceMidiChannel-1]),0);
+              }
             } else {
               forceMidiChannelMode=false;
             }
           } else if (midiMessage.getNoteNumber()==firstModKey){            
             if (midiMessage.isNoteOn()){
-              setMidiProgramMode=true;              
+              setMidiProgramMode=true;
+              if (setMidiBankMode && forceMidiChannelMode){
+                for (int c=1;c<=16;c++){
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
+                }
+              } else if (setMidiBankMode && programs[forceMidiChannel-1]>0){                
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,banks[forceMidiChannel-1]),0);
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,banks[forceMidiChannel-1]),0);
+
+                programs[forceMidiChannel-1]--;
+                getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+                midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,programs[forceMidiChannel-1]),0);
+              }
             } else {
               setMidiProgramMode=false;
             }
           } else if (midiMessage.getNoteNumber()==firstModKey+1){
             if (midiMessage.isNoteOn()){
               setMidiBankMode=true;
+              if (forceMidiChannelMode && setMidiProgramMode){
+                for (int c=1;c<=16;c++){
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
+                  midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
+                }
+              } else if (setMidiProgramMode && programs[forceMidiChannel-1]>0){                
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,banks[forceMidiChannel-1]),0);
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,banks[forceMidiChannel-1]),0);
+
+                programs[forceMidiChannel-1]--;
+                getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+                midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,programs[forceMidiChannel-1]),0);
+              } else if (forceMidiChannelMode && programs[forceMidiChannel-1]<127){
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,banks[forceMidiChannel-1]),0);
+                midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,banks[forceMidiChannel-1]),0);
+
+                programs[forceMidiChannel-1]++;
+                getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+                midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,programs[forceMidiChannel-1]),0);
+              }
             } else {
               setMidiBankMode=false;
             }          
-          } else if (forceMidiChannelMode && !setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+3+18){
+          } else if (midiMessage.isNoteOn() && forceMidiChannelMode && !setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+3+18){
             forceMidiChannel=(int8)(midiMessage.getNoteNumber()-firstModKey-2);
             switch(forceMidiChannel){
               case 17: {
@@ -115,45 +165,51 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
               }
             }
             getInt8Param(forceMidiChannelIndex)->updateUi();
-            getUint8ParamArray(banksIndex)->getUint8Param(forceMidiChannel-1)->updateUi();
-            getUint8ParamArray(programsIndex)->getUint8Param(forceMidiChannel-1)->updateUi();
+            getInt8ParamArray(banksIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+            getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
 
-          } else if (forceMidiChannel>0 && !forceMidiChannelMode && setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+66){
-            int bank=midiMessage.getNoteNumber()-firstModKey-3;
-            banks[forceMidiChannel-1]=(uint8)(bank+1);
-            getUint8ParamArray(banksIndex)->getUint8Param(forceMidiChannel-1)->updateUi();
+          } else if (midiMessage.isNoteOn() && !forceMidiChannelMode && setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+18){
+            int8 bank=midiMessage.getNoteNumber()-firstModKey-3;
+            banks[forceMidiChannel-1]=bank;
+            getInt8ParamArray(banksIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
             midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,bank),0);
             midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,bank),0);
 
-          } else if (forceMidiChannel>0 && !setMidiBankMode && setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+66){
+            programs[forceMidiChannel-1]=0;
+            getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
+            midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,0),0);
+
+          } else if (midiMessage.isNoteOn() && !setMidiBankMode && setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+66){
             int program;
             if (!forceMidiChannelMode)
               program=midiMessage.getNoteNumber()-firstModKey-3;
             else 
               program=64+midiMessage.getNoteNumber()-firstModKey-3;
-            programs[forceMidiChannel-1]=(uint8)(program+1);
-            getUint8ParamArray(programsIndex)->getUint8Param(forceMidiChannel-1)->updateUi();
+            
+            midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,0,banks[forceMidiChannel-1]),0);
+            midiMessages.addEvent(MidiMessage::controllerEvent(forceMidiChannel,32,banks[forceMidiChannel-1]),0);
+
+            programs[forceMidiChannel-1]=program;
+            getInt8ParamArray(programsIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
             midiMessages.addEvent(MidiMessage::programChange(forceMidiChannel,program),0);
 
           } else {
-            if (forceMidiChannel!=0) 
-              midiMessage.setChannel(forceMidiChannel);
+            midiMessage.setChannel(forceMidiChannel);
 
-            midiMessage.setNoteNumber(jlimit(0,128,midiMessage.getNoteNumber()+noteOffset));              
+            midiMessage.setNoteNumber(jlimit(0,127,midiMessage.getNoteNumber()+noteOffset));              
 
             midiMessages.addEvent(midiMessage,sampleNumber);
           }
-        } else {//channel 1 Midi but not NoteOnOff
-          if (forceMidiChannel!=0) 
-              midiMessage.setChannel(forceMidiChannel);              
+        } else {//channel==masterChannel but not NoteOnOff
+          midiMessage.setChannel(forceMidiChannel);              
 
           midiMessages.addEvent(midiMessage,sampleNumber);
         }
-      } else {//channel !=masterChannel
+      } else {//channel!=masterChannel
         if (forceMidi10 && midiMessage.getChannel()==10){
           midiMessage.setChannel(1);
           if (midiMessage.isNoteOnOrOff()){
-            midiMessage.setNoteNumber(jlimit(0,128,midiMessage.getNoteNumber()+noteOffset));
+            midiMessage.setNoteNumber(jlimit(0,127,midiMessage.getNoteNumber()+noteOffset));
           }
         }
         midiMessages.addEvent(midiMessage,sampleNumber);
