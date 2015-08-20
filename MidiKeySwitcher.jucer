@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="0nRd9LLGO" name="MidiKeySwitcher" projectType="audioplug"
-              version="1.0.0" juceLinkage="amalg_multi" buildVST="1" buildRTAS="0"
-              buildAU="1" pluginName="MidiKeySwitcher" pluginDesc="Change Midi Channel, Bank and Programs with a key combination."
+              version="1.0.1" juceLinkage="amalg_multi" buildVST="1" buildRTAS="0"
+              buildAU="1" pluginName="MidiKeySwitcher" pluginDesc="Change Midi Channel, Programs and Banks/SubBanks with a KeySwitch"
               pluginManufacturer="4drX" pluginManufacturerCode="4drX" pluginCode="MKS4"
               pluginChannelConfigs="{1, 1}, {2, 2}" pluginIsSynth="1" pluginWantsMidiIn="1"
               pluginProducesMidiOut="1" pluginSilenceInIsSilenceOut="0" pluginTailLength="0"
