@@ -70,7 +70,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
       if (midiMessage.getChannel()==masterChannel){
         if (midiMessage.isNoteOnOrOff()){
           if (midiMessage.getNoteNumber()==firstModKey+2){
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               forceMidiChannelMode=true;
               if (setMidiBankMode && setMidiProgramMode){
                 for (int c=1;c<=16;c++){
@@ -91,7 +91,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
               forceMidiChannelMode=false;
             }
           } else if (midiMessage.getNoteNumber()==firstModKey){            
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               setMidiProgramMode=true;
               if (setMidiBankMode && forceMidiChannelMode){
                 for (int c=1;c<=16;c++){
@@ -111,7 +111,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
               setMidiProgramMode=false;
             }
           } else if (midiMessage.getNoteNumber()==firstModKey+1){
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               setMidiBankMode=true;
               if (forceMidiChannelMode && setMidiProgramMode){
                 for (int c=1;c<=16;c++){
@@ -138,7 +138,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
               setMidiBankMode=false;
             }          
           } else if (forceMidiChannelMode && !setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+3+18){
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               forceMidiChannel=(int8)(midiMessage.getNoteNumber()-firstModKey-2);
               switch(forceMidiChannel){
                 case 17: {
@@ -171,7 +171,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
             }
 
           } else if (!forceMidiChannelMode && setMidiBankMode && !setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+18){
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               int8 bank=midiMessage.getNoteNumber()-firstModKey-3;
               banks[forceMidiChannel-1]=bank;
               getInt8ParamArray(banksIndex)->getInt8Param(forceMidiChannel-1)->updateUi();
@@ -184,7 +184,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
             }
 
           } else if (!setMidiBankMode && setMidiProgramMode && midiMessage.getNoteNumber()>=firstModKey+3 && midiMessage.getNoteNumber()<=firstModKey+66){
-            if (midiMessage.isNoteOn()){
+            if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               int program;
               if (!forceMidiChannelMode)
                 program=midiMessage.getNoteNumber()-firstModKey-3;
