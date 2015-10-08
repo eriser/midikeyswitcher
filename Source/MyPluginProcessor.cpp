@@ -73,7 +73,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
             if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               forceMidiChannelMode=true;
               if (setMidiBankMode && setMidiProgramMode){
-                for (int c=1;c<=16;c++){
+                for (int c=forceMidiChannel;c<=forceMidiChannel;c++){
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
@@ -94,7 +94,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
             if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               setMidiProgramMode=true;
               if (setMidiBankMode && forceMidiChannelMode){
-                for (int c=1;c<=16;c++){
+                for (int c=forceMidiChannel;c<=forceMidiChannel;c++){
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
@@ -114,7 +114,7 @@ void MyPluginProcessor::processBlock (AudioSampleBuffer& /*buffer*/, MidiBuffer&
             if (midiMessage.isNoteOn() && midiMessage.getVelocity()>0){
               setMidiBankMode=true;
               if (forceMidiChannelMode && setMidiProgramMode){
-                for (int c=1;c<=16;c++){
+                for (int c=forceMidiChannel;c<=forceMidiChannel;c++){
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,0,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::controllerEvent(c,32,banks[c-1]),0);
                   midiMessages.addEvent(MidiMessage::programChange(c,programs[c-1]),0);
